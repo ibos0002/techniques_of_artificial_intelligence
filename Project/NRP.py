@@ -9,6 +9,15 @@ def solved_puzzle(width: int, height: int):
 
     return tuple([tuple([i+j*width+1 for i in range(width)]) for j in range(height)])
 
+def list_to_tuple(configuration: list[list[int]]):
+    # Convert a configuration given as a list of lists into a tuple of tuples
+    #   configuration:      configuration to be converted
+
+    tuple_configuration = []
+    for row in configuration:
+        tuple_configuration.append(tuple(row))
+    return tuple(tuple_configuration)
+
 class Puzzle():
     def __init__(self, width: int, height: int, configuration: Optional[tuple[tuple[int]]] = None):
         # Initializes the puzzle as a solved puzzle of given width and height
@@ -23,7 +32,7 @@ class Puzzle():
         if configuration is None:
             self.configuration = solved_puzzle(width,height)
         else:
-            self.configuration = configuration
+            self.configuration = list_to_tuple(configuration)
 
     def __str__(self):
         # Returns an easily readable string representing the puzzle's current configuration
@@ -52,6 +61,8 @@ class Puzzle():
         return self.configuration == other.configuration
 
     def __lt__(self, other: Puzzle):
+        if any([None in row for row in self.configuration]):
+            return True
         return self.configuration.__lt__(other.configuration)
 
     def rotate(self, x: int, y: int, configuration: Optional[list[list[int]]] = None):
@@ -113,3 +124,79 @@ class Puzzle():
             final_config.append(tuple(row))
 
         self.configuration = tuple(final_config)
+
+class Puzzle_solution:
+    def __init__(self,p: Puzzle, rotation_list: list[tuple[int]]):
+        # Intializes the puzzle solution using the initial puzzle and the rotations required to solve it
+        # by generating the intermediate puzzles and computing the number of steps
+        #   p:              instance of Puzzle to be solved
+        #   rotation_list:  list of rotations required to solved the puzzle
+
+        self.p = p
+
+        puzzle_list = [p]
+        for rot in rotation_list:
+            p = p.rotate(rot[0],rot[1])
+            puzzle_list.append(p)
+        self.puzzle_list = puzzle_list
+
+        self.rotation_list = rotation_list
+        self.num_steps = len(rotation_list)
+
+    def __str__(self):
+        # Returns an easily readable string representing the steps required to solve the
+        # initial puzzle and the intermediate puzzles
+        output_str = ""
+        max_value = self.p.width*self.p.height
+        max_digits = len(str(max_value))
+
+        for step,tup in enumerate(zip(self.rotation_list,self.puzzle_list[:-1])):
+            rot, p = tup
+            output_str += "Step "+str(step+1)+"\n"
+            top_y = rot[1]
+            bottom_y = rot[1]+1
+            left_x = rot[0]
+            right_x = rot[0]+1
+            for y in range(p.height):
+                row_str = "\t"
+                for x in range(p.width):
+                    current_number = str(p.configuration[y][x])
+                    current_digits = len(current_number)
+                    if x == left_x and y in [top_y,bottom_y]:
+                        row_str += "|"
+                    else:
+                        if not (x == right_x+1 and y in [top_y,bottom_y]):
+                            row_str += " "
+
+                    if x == right_x+1 and y in [top_y,bottom_y]:
+                        row_str += " "*(max_digits-current_digits-2)+"|"
+                    else:
+                        row_str += " "*(max_digits-current_digits-1)
+                    row_str += current_number
+
+                    if x == p.width-1:
+                        if x == right_x and y in [top_y,bottom_y]:
+                            row_str += "|"
+
+                row_str += "\n"
+
+                output_str += row_str
+
+        output_str += "Final solution\n"
+        p = self.puzzle_list[-1]
+
+        for y in range(p.height):
+            row_str = "\t"
+            for x in range(p.width):
+                current_number = str(p.configuration[y][x])
+                current_digits = len(current_number)
+
+                row_str += " "*(max_digits-current_digits+1)
+                row_str += current_number
+
+            row_str += "\n"
+            output_str += row_str
+
+        output_str += "\nSolved in " +str(self.num_steps)+ " steps."
+
+        return output_str
