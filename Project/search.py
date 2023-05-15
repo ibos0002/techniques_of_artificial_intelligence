@@ -163,6 +163,8 @@ def search_runner(p: Puzzle):
 
         current_steps = A_star(current_puzzle,rows,cols)
         steps.extend(current_steps)
+        for rot in current_steps:
+            current_puzzle = current_puzzle.rotate(rot[0],rot[1])
 
     rows = range(real_size[0]-current_size[0],real_size[0])
     cols = range(real_size[1]-current_size[1],real_size[1])
@@ -170,3 +172,7 @@ def search_runner(p: Puzzle):
     steps.extend(current_steps)
 
     return Puzzle_solution(p,steps)
+
+config = ((5,12,4,1),(6,8,10,7),(9,3,11,2))
+p = Puzzle(4,3,config)
+print(search_runner(p))
