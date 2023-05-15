@@ -129,7 +129,15 @@ def A_star(p: Puzzle, rows: Optional[list[int]] = None, cols: Optional[list[int]
                 heapq.heappush(q,(f,p,current[2]+[rotation]))
                 g_scores[p] = g
 
-def search_runner(p: Puzzle):
+def search_runner(p: Puzzle, a_star: bool = False):
+    # Function which splits the puzzle into regions and solves the regions one after another
+    #   p:          NRP of class Puzzle
+    #   a_star:     Boolean parameter which indicates whether to solve the entire puzzle at once
+    #               with the A_star algorithm. Default value is False.
+
+    if a_star:
+        steps = A_star(p)
+        return Puzzle_solution(p,steps)
 
     steps = []
     real_size = [p.height,p.width]
