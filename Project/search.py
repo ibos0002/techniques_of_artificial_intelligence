@@ -143,7 +143,7 @@ def search_runner(p: Puzzle, a_star: bool = False):
     real_size = [p.height,p.width]
     current_puzzle = p
     current_size = [p.height,p.width]
-    while current_size != [3,3]:
+    while current_size[0] > 3 and current_size[1] > 3:
         if current_size[0] == 3:
             cols = range(real_size[1]-current_size[1],real_size[1]-3)
             rows = []
