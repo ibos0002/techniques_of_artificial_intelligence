@@ -1,4 +1,4 @@
-from Project.NRP import Puzzle, Puzzle_solution
+from NRP import Puzzle, Puzzle_solution
 
 import heapq
 from typing import Optional
