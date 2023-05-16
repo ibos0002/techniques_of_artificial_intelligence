@@ -13,8 +13,6 @@ def manhattan_heuristic(p: Puzzle):
     for y in range(p.height):
         for x in range(p.width):
             current_number = p.configuration[y][x]
-            if current_number is None:
-                continue
             solved_y = (current_number-1)//p.width
             solved_x = current_number-1 - solved_y*p.width
             h += abs(solved_x-x) + abs(solved_y-y)
