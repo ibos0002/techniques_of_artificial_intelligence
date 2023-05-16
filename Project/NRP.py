@@ -19,20 +19,28 @@ def list_to_tuple(configuration: list[list[int]]):
     return tuple(tuple_configuration)
 
 class Puzzle():
-    def __init__(self, width: int, height: int, configuration: Optional[tuple[tuple[int]]] = None):
+    def __init__(self, width: Optional[int] = None, height: Optional[int] = None,
+                 configuration: Optional[tuple[tuple[int]]] = None):
         # Initializes the puzzle as a solved puzzle of given width and height
-        #   width:          width of the puzzle
-        #   height:         height of the puzzle
+        #   width:          width of the puzzle. Optional parameter if configuration is given and is
+        #                   then equal to the width of that configuration
+        #   height:         height of the puzzle. Optional parameter if configuration is given and is
+        #                   then equal to the height of that configuration
         #   configuration:  tuple of tuples representing the configuration of the puzzle
-        #                   Optional parameter. If not given, self.configuration is the solved
+        #                   Optional parameter if height and width are not given.
+        #                   If configuration is not given, self.configuration is the solved
         #                   configuration with the corresponding height and width
 
-        self.width = width
-        self.height = height
         if configuration is None:
+            if width is None or height is None:
+                raise ValueError("Either configuration or width and height must be given!")
             self.configuration = solved_puzzle(width,height)
+            self.width = width
+            self.height = height
         else:
             self.configuration = list_to_tuple(configuration)
+            self.height = len(configuration)
+            self.width = len(configuration[0])
 
     def __str__(self):
         # Returns an easily readable string representing the puzzle's current configuration
@@ -169,14 +177,14 @@ class Puzzle_solution:
                             row_str += " "
 
                     if x == right_x+1 and y in [top_y,bottom_y]:
-                        row_str += " "*(max_digits-current_digits-2)+"|"
+                        row_str += " "*(max_digits-current_digits-1)+"|"
                     else:
-                        row_str += " "*(max_digits-current_digits-1)
+                        row_str += " "*(max_digits-current_digits)
                     row_str += current_number
 
                     if x == p.width-1:
                         if x == right_x and y in [top_y,bottom_y]:
-                            row_str += "|"
+                            row_str += "|"+(max_digits-current_digits-1)*" "
 
                 row_str += "\n"
 
