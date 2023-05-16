@@ -21,12 +21,15 @@ def manhattan_heuristic(p: Puzzle):
 
     return h/n
 
-def rotation_neighbours(p: Puzzle, rows: list[int], cols: list[int]):
+def rotation_neighbours(p: Puzzle, real_p: Puzzle, rows: list[int], cols: list[int]):
     # Returns a list of puzzles with a configuration that can be reached from a given puzzle
     # by rotating a single 2x2 square block clockwise
-    #   p:  NRP of class Puzzle
-    #   rows:   index of rows that need to be solved
-    #   cols:   index of columns that need to be solved
+    #   p:          NRP of class Puzzle. If only a region of the NRP is being solved, it will contain
+    #               values equal to None corresponding to the other region(s)
+    #   real_p:     NRP of class Puzzle. Represents the real NRP, without any None values. If the whole
+    #               puzzle is being solved, it will be equal to p
+    #   rows:       index of rows that need to be solved
+    #   cols:       index of columns that need to be solved
 
     neigh_list = []
     if len(rows) == 0:
@@ -42,7 +45,7 @@ def rotation_neighbours(p: Puzzle, rows: list[int], cols: list[int]):
     for y in range(min_row,p.height-1):
         for x in range(min_col,p.width-1):
             if any([p.configuration[r][c] is not None for r in [y,y+1] for c in [x,x+1]]):
-                neigh_list.append((p.rotate(x,y),(x,y)))
+                neigh_list.append((p.rotate(x,y),real_p.rotate(x,y),(x,y)))
     return neigh_list
 
 def solved(p: Puzzle, goal: Puzzle, rows: list[int], cols: list[int]):
@@ -112,22 +115,23 @@ def A_star(p: Puzzle, rows: Optional[list[int]] = None, cols: Optional[list[int]
 
     goal = Puzzle(p.width,p.height)
     start = start_puzzle(p,goal,rows,cols)
+    real_start = p
 
-    q = [(0,start,[])]
+    q = [(0,(start,real_start),[])]
     heapq.heapify(q)
 
-    g_scores = {start: 0}
+    g_scores = {real_start: 0}
     while len(q) != 0:
         current = heapq.heappop(q)
-        if solved(current[1],goal,rows,cols):
+        if solved(current[1][0],goal,rows,cols):
             return current[2]
 
-        for p,rotation in rotation_neighbours(current[1],rows,cols):
-            g = g_scores[current[1]]+1
-            f = g + manhattan_heuristic(p)
-            if p not in g_scores or g < g_scores[p]:
-                heapq.heappush(q,(f,p,current[2]+[rotation]))
-                g_scores[p] = g
+        for p,real_p,rotation in rotation_neighbours(current[1][0],current[1][1],rows,cols):
+            g = g_scores[current[1][1]]+1
+            f = g + manhattan_heuristic(real_p)
+            if real_p not in g_scores or g < g_scores[real_p]:
+                heapq.heappush(q,(f,(p,real_p),current[2]+[rotation]))
+                g_scores[real_p] = g
 
 def search_runner(p: Puzzle, a_star: bool = False):
     # Function which splits the puzzle into regions and solves the regions one after another
@@ -143,7 +147,7 @@ def search_runner(p: Puzzle, a_star: bool = False):
     real_size = [p.height,p.width]
     current_puzzle = p
     current_size = [p.height,p.width]
-     while (current_size[0] > 3 and current_size[1] > 3) or \
+    while (current_size[0] > 3 and current_size[1] > 3) or \
             (current_size[0] >= 3 and current_size[1] > 3) or \
             (current_size[0] > 3 and current_size[1] >= 3):
         if current_size[0] == 3:
