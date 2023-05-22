@@ -177,14 +177,14 @@ class Puzzle_solution:
                             row_str += " "
 
                     if x == right_x+1 and y in [top_y,bottom_y]:
-                        row_str += " "*(max_digits-current_digits-1)+"|"
+                        row_str += " "*(max_digits-current_digits-1)+"|"+(max_digits-current_digits)*" "
                     else:
                         row_str += " "*(max_digits-current_digits)
                     row_str += current_number
 
                     if x == p.width-1:
                         if x == right_x and y in [top_y,bottom_y]:
-                            row_str += "|"+(max_digits-current_digits-1)*" "
+                            row_str += "|"+(max_digits-current_digits)*" "
 
                 row_str += "\n"
 
