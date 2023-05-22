@@ -119,10 +119,12 @@ def A_star(p: Puzzle, rows: Optional[list[int]] = None, cols: Optional[list[int]
     heapq.heapify(q)
 
     g_scores = {real_start: 0}
+    explored_nodes = 0
     while len(q) != 0:
         current = heapq.heappop(q)
+        explored_nodes += 1
         if solved(current[1][0],goal,rows,cols):
-            return current[2]
+            return current[2], explored_nodes
 
         for p,real_p,rotation in rotation_neighbours(current[1][0],current[1][1],rows,cols):
             g = g_scores[current[1][1]]+1
@@ -138,7 +140,7 @@ def search_runner(p: Puzzle, a_star: bool = False):
     #               with the A_star algorithm. Default value is False.
 
     if a_star:
-        steps = A_star(p)
+        steps,_ = A_star(p)
         return Puzzle_solution(p,steps)
 
     steps = []
@@ -173,14 +175,14 @@ def search_runner(p: Puzzle, a_star: bool = False):
                         cols = [real_size[1]-current_size[1]]
                         current_size[1] -= 1
 
-        current_steps = A_star(current_puzzle,rows,cols)
+        current_steps,_ = A_star(current_puzzle,rows,cols)
         steps.extend(current_steps)
         for rot in current_steps:
             current_puzzle = current_puzzle.rotate(rot[0],rot[1])
 
     rows = range(real_size[0]-current_size[0],real_size[0])
     cols = range(real_size[1]-current_size[1],real_size[1])
-    current_steps = A_star(current_puzzle,rows,cols)
+    current_steps,_ = A_star(current_puzzle,rows,cols)
     steps.extend(current_steps)
 
     return Puzzle_solution(p,steps)
