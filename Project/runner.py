@@ -16,7 +16,7 @@ def runner_GUI(width, height, columns=5):
     """
 
     puzzle = Puzzle(width=width, height=height)
-    puzzle.shuffle(6)
+    puzzle.shuffle(width*height)
 
     result = search_runner(puzzle)
     print(result)
