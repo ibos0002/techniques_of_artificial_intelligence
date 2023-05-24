@@ -4,42 +4,55 @@ import numpy as np
 from NRP import Puzzle
 from search import search_runner
 
-puzzle = Puzzle(3,3)
-puzzle.shuffle(10)
+def runner_GUI(width, height, columns=5):
 
-result = search_runner(puzzle)
-print(result)
+    """ Runs the algorithm on a randomly generated puzzle of a given size
+    and displays the steps nicely to the user
+    Params:
+    Width, height = integers, width and height of the random puzzle
+    Columns = the number of steps (columns) to show on one line - the default is 5
+    The number should be bigger for larger puzzles that require more steps,
+    so it doesn't impact the visibility.
+    """
 
-rows = (len(result.puzzle_list)//4)+1
-cols = 4
+    puzzle = Puzzle(width=width, height=height)
+    puzzle.shuffle(6)
 
-fig, ax = plt.subplots(nrows=rows, ncols=cols)
+    result = search_runner(puzzle)
+    print(result)
 
-for row in range (rows):
-    for col in range(cols):
+    rows = (len(result.puzzle_list) // columns) + 1
+    cols = columns
 
-        pos = (row*cols)+col
-        if pos < len(result.puzzle_list):
+    fig, ax = plt.subplots(nrows=rows, ncols=cols)
 
-            configs = np.array(result.puzzle_list[pos].configuration)
+    for row in range(rows):
+        for col in range(cols):
 
+            pos = (row * cols) + col  # index of the configuration
+            if pos < len(result.puzzle_list):
 
-            im = ax[row, col].matshow(configs, cmap="tab10", interpolation='none')
+                # create a np array of each configuration
+                configs = np.array(result.puzzle_list[pos].configuration)
 
-            ax[row, col].set_xticks(np.arange(len(configs[0])))
-            ax[row, col].set_yticks(np.arange(len(configs[0])))
+                # create the heatmap of the configuration
+                im = ax[row, col].matshow(configs, cmap="Set3", interpolation="None")
 
-            plt.setp(ax[row, col].get_xticklabels(), ha="right",
-                     rotation_mode="anchor")
+                ax[row, col].set_xticks(np.arange(width))
+                ax[row, col].set_yticks(np.arange(height))
 
-            # Loop over the values in the NRP and create text annotations.
-            for i in range(len(configs[0])):
-                for j in range(len(configs[0])):
-                    text = ax[row, col].text(j, i, configs[i, j],ha="center", va="center", color="w")
-            ax[row, col].set_title(str("Step " + str(pos+1)))
+                plt.setp(ax[row, col].get_xticklabels(), ha="right",rotation_mode="anchor")
 
-        else:
-            ax[row, col].axis('off')
+                # Loop over the values in the NRP and create text annotations
+                for i in range(height):
+                    for j in range(width):
+                        text = ax[row, col].text(j, i, configs[i, j], ha="center", va="center", color="black")
+                ax[row, col].set_title(str("Step " + str(pos + 1)))
 
-fig.tight_layout()
-plt.show()
+            else:
+                ax[row, col].axis('off')
+
+    fig.tight_layout()
+    plt.show()
+
+runner_GUI(width= 3, height= 3)
